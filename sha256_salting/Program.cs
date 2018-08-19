@@ -6,10 +6,42 @@ using System.Threading.Tasks;
 
 namespace sha256_salting
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
+            string salt = CreateSalt(10);
+            string hash = GenerateSHA256("Password1234", salt);
+
+            Console.WriteLine(salt + "\n" + hash);
+            Console.ReadKey();
+        }
+
+        public static string CreateSalt(int size)
+        {
+            var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
+            var buff = new byte[size];
+            rng.GetBytes(buff);
+            return Convert.ToBase64String(buff);
+        }
+
+        public static string GenerateSHA256(string input, string salt)
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(input + salt);
+            System.Security.Cryptography.SHA256Managed sha256hashstring = new System.Security.Cryptography.SHA256Managed();
+            byte[] hash = sha256hashstring.ComputeHash(bytes);
+
+            return ToHex(hash);
+        }
+
+        public static string ToHex(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach(byte b in ba)
+            {
+                hex.AppendFormat("{0:x2}", b);
+            }
+            return hex.ToString();
         }
     }
 }
